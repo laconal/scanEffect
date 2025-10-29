@@ -18,6 +18,8 @@ import img2pdf
 import random
 import os
 import tempfile
+from tkinter import Tk, filedialog
+from pathlib import Path
 
 def add_paper_texture(img_array, intensity=0.3, seed=None):
     """Add subtle paper texture"""
@@ -255,7 +257,43 @@ def pdf_to_scanned_pdf(input_pdf, output_pdf, dpi=200, options=None):
 # Example usage
 if __name__ == "__main__":
     # Basic usage with default settings (same effects on all pages)
-    pdf_to_scanned_pdf("Поручение 2.pdf", "output_scanned.pdf")
+    root = Tk()
+    root.withdraw()
+    root.attributes('-topmost', True)
+    
+    # Open file dialog to select PDF
+    print("Please select a PDF file...")
+    input_pdf = filedialog.askopenfilename(
+        title="Select PDF file to convert",
+        filetypes=[("PDF files", "*.pdf"), ("All files", "*.*")]
+    )
+    
+    # Check if user selected a file
+    if not input_pdf:
+        print("No file selected. Exiting.")
+        exit()
+    
+    print(f"Selected: {input_pdf}")
+    
+    # Get Desktop path
+    desktop = Path.home() / "Desktop"
+    
+    # Generate output filename
+    input_filename = Path(input_pdf).stem
+    output_pdf = desktop / f"{input_filename}_scanned.pdf"
+    
+    # Make sure output doesn't overwrite existing file
+    counter = 1
+    while output_pdf.exists():
+        output_pdf = desktop / f"{input_filename}_scanned_{counter}.pdf"
+        counter += 1
+    
+    print(f"Output will be saved to: {output_pdf}\n")
+    
+    # Process the PDF with default settings
+    pdf_to_scanned_pdf(str(input_pdf), str(output_pdf))
+    
+    print(f"\n✓ Done! File saved to Desktop: {output_pdf.name}")
     
     # Custom settings for reproducible results (use same seed)
     # custom_options = {
